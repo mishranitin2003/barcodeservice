@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
-		
+	
+	<!-- Supported barcode types -->
+	<util:map id="supportedBarcodeFormats">
+		<entry key="code128" value="#{T(com.google.zxing.BarcodeFormat).CODE_128}"/>
+		<entry key="qrcode" value="#{T(com.google.zxing.BarcodeFormat).QR_CODE}"/>
+		<entry key="code39" value="#{T(com.google.zxing.BarcodeFormat).CODE_39}"/>
+	</util:map>
+	
 </beans>

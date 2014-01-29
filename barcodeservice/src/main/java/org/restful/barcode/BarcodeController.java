@@ -1,8 +1,12 @@
+/*
+ * The GNU General Public License (GPL-3.0)
+ * Copyright 2013-2014 the original author or authors.
+ *
+ */
 package org.restful.barcode;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -11,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,30 +31,24 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 
 /**
- * Handles requests for the application home page.
+ * @author nmishra
+ * Entry point to Barcode RESTful API
  */
 @Controller
 public class BarcodeController {
 
 	private static final Logger logger = LoggerFactory.getLogger(BarcodeController.class);
 
-	private static Map<String, BarcodeFormat> FORMAT_MAP = 
-			new HashMap<String, BarcodeFormat>(){
-		{
-			put("code128", BarcodeFormat.CODE_128);
-			put("qrcode", BarcodeFormat.QR_CODE);
-			put("code39", BarcodeFormat.CODE_39);
-		}
-	};
-	
+	@Value("#{supportedBarcodeFormats}")
+	private Map<String, BarcodeFormat> supportedBarcodeFormats;
 	
 	/**
-	 * Simply selects the home view to render by returning its name.
+	 * Original uri to get barcode and text
 	 */
 	@RequestMapping(value = "/{format}/{data}", method = RequestMethod.GET)
 	public ModelAndView generateBarcode(@PathVariable("format") String format,
 			@PathVariable("data") String data, HttpServletRequest request) {
-		BarcodeFormat barcodeFormat = FORMAT_MAP.get(format);
+		BarcodeFormat barcodeFormat = supportedBarcodeFormats.get(format);
 		if(barcodeFormat == null) {
 			throw new RuntimeException("Barcode format " + format + " is incorrect");
 		}
@@ -66,13 +65,13 @@ public class BarcodeController {
 	
 
 	/**
-	 * Simply selects the home view to render by returning its name.
+	 * URI to fetch barcode only (without text)
 	 */
 	@RequestMapping(value = "/barcode/{format}/{data}", method = RequestMethod.GET)
 	@ResponseBody
 	public void barcode(@PathVariable("format") String format,
 			@PathVariable("data") String data, HttpServletResponse response) {
-		BarcodeFormat barcodeFormat = FORMAT_MAP.get(format);
+		BarcodeFormat barcodeFormat = supportedBarcodeFormats.get(format);
 
 		try {
 			BitMatrix matrix = new MultiFormatWriter().encode(data, barcodeFormat, 300, 300);
@@ -90,6 +89,9 @@ public class BarcodeController {
 
 	}
 	
+	/*
+	 * Exception Handler. Any Exception will forward to error jsp page
+	 */
 	@ExceptionHandler(Exception.class)
 	public String handleIOException(Exception ex, HttpServletRequest request) {
 		return "error";
