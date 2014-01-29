@@ -1,17 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
-	
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+						http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+						http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+						http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
 	<!-- Root Context: defines shared resources visible to all other web components -->
-	
+
 	<!-- Supported barcode types -->
 	<util:map id="supportedBarcodeFormats">
-		<entry key="code128" value="#{T(com.google.zxing.BarcodeFormat).CODE_128}"/>
-		<entry key="qrcode" value="#{T(com.google.zxing.BarcodeFormat).QR_CODE}"/>
-		<entry key="code39" value="#{T(com.google.zxing.BarcodeFormat).CODE_39}"/>
+		<entry key="code128" value="#{T(com.google.zxing.BarcodeFormat).CODE_128}" />
+		<entry key="qrcode" value="#{T(com.google.zxing.BarcodeFormat).QR_CODE}" />
+		<entry key="code39" value="#{T(com.google.zxing.BarcodeFormat).CODE_39}" />
+		<entry key="datamatrix" value="#{T(com.google.zxing.BarcodeFormat).DATA_MATRIX}" />
+		<entry key="ean13" value="#{T(com.google.zxing.BarcodeFormat).EAN_13}" />
+		<entry key="pdf417" value="#{T(com.google.zxing.BarcodeFormat).PDF_417}" />
+		<entry key="codeabar" value="#{T(com.google.zxing.BarcodeFormat).CODABAR}" />
 	</util:map>
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${dataSource.driverClassName}" />
+		<property name="url" value="${dataSource.url}" />
+		<property name="username" value="${dataSource.username}" />
+		<property name="password" value="${dataSource.password}" />
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan">
+			<list>
+				<value>org.restful.barcode.admin.data</value>
+			</list>
+		</property>
+		<property name="hibernateProperties" ref="hibernatePropertiesBean"/>
+	</bean>
+
+	<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
 	
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<!-- the transactional semantics... -->
+		<tx:attributes>
+			<!-- all methods starting with 'get' are read-only -->
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="find*" read-only="true" />
+			<!-- other methods use the default transaction settings -->
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+	  <aop:pointcut id="anyServiceOperation" expression="execution(* org.restful.barcode.service.*Service.*(..))"/>
+	  <aop:advisor advice-ref="txAdvice" pointcut-ref="anyServiceOperation"/>
+	</aop:config>
+
+	<beans profile="test">
+		<context:property-placeholder ignore-unresolvable="true" system-properties-mode="OVERRIDE" location="classpath:testing-datasource.properties" />
+		
+		<util:properties id="hibernatePropertiesBean" location="classpath:testing-hibernate.properties"/>
+
+		<jdbc:initialize-database data-source="dataSource" ignore-failures="DROPS">
+			<jdbc:script location="classpath:schema_h2.sql" />
+		</jdbc:initialize-database>
+	</beans>
+
 </beans>
