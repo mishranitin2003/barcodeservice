@@ -15,17 +15,6 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 
-	<!-- Supported barcode types -->
-	<util:map id="supportedBarcodeFormats">
-		<entry key="code128" value="#{T(com.google.zxing.BarcodeFormat).CODE_128}" />
-		<entry key="qrcode" value="#{T(com.google.zxing.BarcodeFormat).QR_CODE}" />
-		<entry key="code39" value="#{T(com.google.zxing.BarcodeFormat).CODE_39}" />
-		<entry key="datamatrix" value="#{T(com.google.zxing.BarcodeFormat).DATA_MATRIX}" />
-		<entry key="ean13" value="#{T(com.google.zxing.BarcodeFormat).EAN_13}" />
-		<entry key="pdf417" value="#{T(com.google.zxing.BarcodeFormat).PDF_417}" />
-		<entry key="codeabar" value="#{T(com.google.zxing.BarcodeFormat).CODABAR}" />
-	</util:map>
-
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="${dataSource.driverClassName}" />
 		<property name="url" value="${dataSource.url}" />
