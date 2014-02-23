@@ -26,32 +26,26 @@
 		<property name="dataSource" ref="dataSource" />
 		<property name="packagesToScan">
 			<list>
-				<value>org.restful.barcode.admin.data</value>
+				<value>org.restful.barcode.data</value>
 			</list>
 		</property>
 		<property name="hibernateProperties" ref="hibernatePropertiesBean"/>
 	</bean>
 
-	<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	
-	<tx:advice id="txAdvice" transaction-manager="txManager">
-		<!-- the transactional semantics... -->
-		<tx:attributes>
-			<!-- all methods starting with 'get' are read-only -->
-			<tx:method name="get*" read-only="true" />
-			<tx:method name="find*" read-only="true" />
-			<!-- other methods use the default transaction settings -->
-			<tx:method name="*" />
-		</tx:attributes>
-	</tx:advice>
-	
-	<aop:config>
-	  <aop:pointcut id="anyServiceOperation" expression="execution(* org.restful.barcode.service.*Service.*(..))"/>
-	  <aop:advisor advice-ref="txAdvice" pointcut-ref="anyServiceOperation"/>
-	</aop:config>
+	<tx:annotation-driven />
 
+	<context:component-scan base-package="org.restful.barcode.service">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+	</context:component-scan>
+	
+	<context:component-scan base-package="org.restful.barcode.dao">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan>
+	
 	<beans profile="test">
 		<context:property-placeholder ignore-unresolvable="true" system-properties-mode="OVERRIDE" location="classpath:testing-datasource.properties" />
 		
@@ -62,4 +56,5 @@
 		</jdbc:initialize-database>
 	</beans>
 
+	
 </beans>

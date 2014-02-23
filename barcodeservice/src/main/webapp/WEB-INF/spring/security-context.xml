@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+<!--
+  - Application context containing the ACL beans.
+  -
+  -->
+	
+	<bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
+	
+    <security:http realm="Admin Realm">
+        <security:intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        
+        <security:intercept-url pattern="/customers" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/mainscreen" access="ROLE_ADMIN"/>
+
+        <security:form-login login-page="/adminlogin" default-target-url="/adminlogin/success" authentication-failure-url="/adminlogin/failed?login_error=1"/>
+        <security:http-basic/>
+        <security:logout logout-success-url="/index.jsp"/>
+        <security:remember-me />
+        <security:headers/>
+        <security:csrf/>
+    </security:http>
+
+    <bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+
+	<security:authentication-manager>
+        <security:authentication-provider>
+           <security:password-encoder ref="encoder"/>
+           <security:jdbc-user-service data-source-ref="dataSource"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+    
+
+</beans>
