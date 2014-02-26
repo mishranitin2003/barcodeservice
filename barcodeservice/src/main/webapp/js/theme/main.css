@@ -47,8 +47,17 @@ html, body {
 	width:200px;
 }
 
-#myGrid {
-    width: 45em;
-    height: 20em;
+#customersGrid {
+    width: 42em;
+    height: 12em !important;
+}
+
+#customerBarcodesGrid {
+    width: 36em;
+    height: 12em !important;
+}
+
+.customerButtonsContainer {
+	padding-left: 105px !important;
 }
 

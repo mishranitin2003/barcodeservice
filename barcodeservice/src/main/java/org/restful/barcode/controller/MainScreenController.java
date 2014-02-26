@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.restful.barcode.service.CustomerService;
 import org.restful.barcode.service.UserService;
+import org.restful.barcode.vo.CustomerBarcodesVo;
 import org.restful.barcode.vo.CustomerVo;
 import org.restful.barcode.vo.UserVo;
 import org.slf4j.Logger;
@@ -38,6 +39,12 @@ public class MainScreenController {
 	@ResponseBody
 	public List<CustomerVo> getCustomers() {
 		return customerService.findAllCustomers();
+	}
+	
+	@RequestMapping(value="/customerBarcodes/{customerId}", method = RequestMethod.GET, produces="application/json")
+	@ResponseBody
+	public List<CustomerBarcodesVo> getCustomerBarcodes(@PathVariable String customerId) {
+		return customerService.getCustomerBarcodes(customerId);
 	}
 	
 	@RequestMapping(value="/mainscreen", method = RequestMethod.GET)

@@ -16,48 +16,86 @@ define([
         
         postCreate: function() {
         	this.inherited(arguments);
-        	
+	        this.setUserDetails();
+	        this.populateCustomers();
+	        this.createCustomerBarcodesGrid();
+        },
+        
+        populateCustomers: function() {
         	var store = new JsonRestStore({
         	    target: "/barcode/customers",
         	    syncMode: true
         	 });
         	
 	        var grid = new EnhancedGrid({
-	        	id: 'myGrid',
+	        	id: 'customersGrid',
 	            store: store,
 	            structure: [[
 	                {
 	                    name:  'Customer Id',
 	                    field: 'customerId',
-	                    width: '25%'
+	                    width: '26%'
 	                },
                     {
                         name:  'Customer Name',
                         field: 'name',
-                        width: '50%'
+                        width: '37%'
                     },
                     {
                         name:  'Email',
                         field: 'email',
-                        width: '50%'
+                        width: '37%'
                     }
 	            ]]
 	        });
 	        
 	        grid.placeAt(this.customerContainer);
 	        grid.startup();
-	        
-	        var userDetailsStore = new JsonRestStore({
-        	    target: "/barcode/loggedinuser/" + this.loggedinuser,
+        },
+        
+        createCustomerBarcodesGrid: function() {
+        	var store = new JsonRestStore({
+        	    target: "/barcode/customerBarcodes/tescos123",
         	    syncMode: true
         	 });
+        	
+	        var grid = new EnhancedGrid({
+	        	id: 'customerBarcodesGrid',
+	            store: store,
+	            structure: [[
+	                 {
+	                    name:  'API Key',
+	                    field: 'barcodeApiKey',
+	                    width: '40%'
+	                },
+                    {
+                        name:  'Format',
+                        field: 'barcodeFormat',
+                        width: '26%'
+                    },
+                    {
+                        name:  'Domain',
+                        field: 'domain',
+                        width: '34%'
+                    }
+	            ]]
+	        });
 	        
-	        userDetailsStore.fetch({onComplete: this.gotItems});
-	        this.loggedInUser.innerHTML = "Hello nmishra";
+	        grid.placeAt(this.customerBarcodesContainer);
+	        grid.startup();
+        },
+        
+        setUserDetails: function() {
+        	 var userDetailsStore = new JsonRestStore({
+         	    target: "/barcode/loggedinuser/" + this.loggedinuser,
+         	    syncMode: true
+         	 });
+ 	        
+ 	        userDetailsStore.fetch({onComplete: dojo.hitch(this, this.gotItems)});
         },
         
         gotItems: function(response) {
-        	console.log(response);
+        	this.loggedInUser.innerHTML = "Hello " + response.firstName + " " + response.surname + " (" + response.username + ")";
         }
 
 	});

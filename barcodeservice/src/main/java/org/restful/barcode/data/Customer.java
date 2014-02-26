@@ -1,8 +1,13 @@
 package org.restful.barcode.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -18,6 +23,9 @@ public class Customer {
 	
 	@Column(name="email")
 	private String email;
+	
+	@OneToMany(cascade=CascadeType.ALL, mappedBy="customer")
+	private List<Barcode> barcodes = new ArrayList<Barcode>();
 
 	public String getCustomerId() {
 		return customerId;
@@ -42,5 +50,14 @@ public class Customer {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public List<Barcode> getBarcodes() {
+		return barcodes;
+	}
+
+	public void setBarcodes(List<Barcode> barcodes) {
+		this.barcodes = barcodes;
+	}
+	
 	
 }
